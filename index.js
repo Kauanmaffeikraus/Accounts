@@ -80,3 +80,40 @@ function buildAccount() {
     })
     .catch(err => console.log(err))
 }
+
+// add an amount to user account
+
+function deposit() {
+    inquirer.prompt([{
+        name: 'accountName',
+        message: 'Qual o nome da sua conta?',
+    },
+    {
+        name: 'amount',
+        message: 'Qual o valor do depósito?',
+    }])
+    .then((answer) => {
+        const accountName = answer['accountName']
+        const amount = parseFloat(answer['amount'])
+
+        if (isNaN(amount) || amount <= 0) {
+            console.log(chalk.bgRed.black('Valor inválido!'))
+            deposit()
+            return
+        }
+
+        if (!fs.existsSync(`accounts/${accountName}.json`)) {
+            console.log(chalk.bgRed.black('Conta não encontrada!'))
+            deposit()
+            return
+        }
+
+        const accountData = JSON.parse(fs.readFileSync(`accounts/${accountName}.json`, 'utf8'))
+        accountData.balance += amount
+        fs.writeFileSync(`accounts/${accountName}.json`, JSON.stringify(accountData))
+
+        console.log(chalk.green(`Depósito realizado com sucesso! Saldo: R$ ${accountData.balance.toFixed(2)}`))
+        operation()
+    })
+    .catch(err => console.log(err))
+}
