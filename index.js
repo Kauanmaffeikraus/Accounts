@@ -117,3 +117,26 @@ function deposit() {
     })
     .catch(err => console.log(err))
 }
+
+    // show account balance
+
+    function getAccountBalance() {
+        inquirer.prompt([{
+            name: 'accountName',
+            message: 'Qual o nome da sua conta?',
+        }])
+        .then((answer) => {
+            const accountName = answer['accountName']
+
+            if (!fs.existsSync(`accounts/${accountName}.json`)) {
+                console.log(chalk.bgRed.black('Conta não encontrada!'))
+                getAccountBalance()
+                return
+            }
+
+            const accountData = JSON.parse(fs.readFileSync(`accounts/${accountName}.json`, 'utf8'))
+            console.log(chalk.green(`Saldo da conta ${accountName}: R$ ${accountData.balance.toFixed(2)}`))
+            operation()
+        })
+        .catch(err => console.log(err))
+    }
