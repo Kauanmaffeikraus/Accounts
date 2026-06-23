@@ -140,3 +140,44 @@ function deposit() {
         })
         .catch(err => console.log(err))
     }
+
+    function withdraw() {
+        inquirer.prompt([{
+            name: 'accountName',
+            message: 'Qual o nome da sua conta?',
+        },
+        {
+            name: 'amount',
+            message: 'Qual o valor do saque?',
+        }])
+        .then((answer) => {
+            const accountName = answer['accountName']
+            const amount = parseFloat(answer['amount'])
+
+            if (isNaN(amount) || amount <= 0) {
+                console.log(chalk.bgRed.black('Valor inválido!'))
+                withdraw()
+                return
+            }
+
+            if (!fs.existsSync(`accounts/${accountName}.json`)) {
+                console.log(chalk.bgRed.black('Conta não encontrada!'))
+                withdraw()
+                return
+            }
+
+            const accountData = JSON.parse(fs.readFileSync(`accounts/${accountName}.json`, 'utf8'))
+            if (accountData.balance < amount) {
+                console.log(chalk.bgRed.black('Saldo insuficiente!'))
+                withdraw()
+                return
+            }
+
+            accountData.balance -= amount
+            fs.writeFileSync(`accounts/${accountName}.json`, JSON.stringify(accountData))
+
+            console.log(chalk.green(`Saque realizado com sucesso! Saldo: R$ ${accountData.balance.toFixed(2)}`))
+            operation()
+        })
+        .catch(err => console.log(err))
+    }
